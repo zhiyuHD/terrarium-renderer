@@ -1,7 +1,10 @@
+import { drawNeighborPlant } from './neighbors.js';
 /** Shared flower geometry for live scenes and recorded frames. */
 export function drawPlantFlowers(g, plant, x, y, night) {
     const stage = plant.flower;
-    if (!stage)
+    if (!stage && !plant.seedHead)
+        return;
+    if (drawNeighborPlant(g, { ...plant, stage: 3, dry: false }, x, y + 73, night, true))
         return;
     g.save();
     g.translate(x, y);

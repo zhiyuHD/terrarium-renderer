@@ -22,6 +22,7 @@ export interface Nest extends Position {
 export interface FlowerPlant {
     species: string;
     flower?: 'bud' | 'bloom';
+    seedHead?: boolean;
 }
 export interface LandScene extends SceneDimensions {
     phase: 'day' | 'night';
@@ -38,6 +39,7 @@ export interface LandScene extends SceneDimensions {
     nests?: Nest[];
     food?: Array<Position & {
         portions: number;
+        kind?: 'sunflower_seed';
     }>;
     webs?: Position[];
     plants: Array<Position & FlowerPlant & {

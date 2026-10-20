@@ -1,6 +1,7 @@
 import { sceneSize, type LandScene as SceneState } from './types.js';
 import { LAND_SURFACE, plotPosition, residentScale } from './geometry.js';
 export { plotPosition } from './geometry.js';
+import { drawNeighborPlant, drawLadybug } from './neighbors.js';
 import { drawPlantFlowers } from './flowers.js';
 import { createNestViewer } from './nest-viewer.js';
 import { drawAntNest } from './nest-scene.js';
@@ -93,7 +94,13 @@ export function drawScene(canvas: HTMLCanvasElement, state: SceneState, position
   for (const food of state.food ?? []) {
     const { x, y } = plot(food.x, food.y);
     g.fillStyle = '#e4b66c';
-    for (let i = 0; i < Math.min(6, food.portions); i++) { g.beginPath(); g.arc(x - 8 + i % 3 * 6, y + Math.floor(i / 3) * 5, 2.5, 0, Math.PI * 2); g.fill(); }
+    for (let i = 0; i < Math.min(6, food.portions); i++) {
+      const fx = x - 8 + i % 3 * 7, fy = y + Math.floor(i / 3) * 6;
+      if (food.kind === 'sunflower_seed') {
+        g.fillStyle = '#645345'; g.beginPath(); g.ellipse(fx, fy, 2.5, 4, -.4, 0, Math.PI * 2); g.fill();
+        g.strokeStyle = '#dfd1ad'; g.lineWidth = 1; g.beginPath(); g.moveTo(fx - 1, fy - 2); g.lineTo(fx + 1, fy + 2); g.stroke();
+      } else { g.fillStyle = '#e4b66c'; g.beginPath(); g.arc(fx, fy, 2.5, 0, Math.PI * 2); g.fill(); }
+    }
   }
   for (const [index, egg] of (state.eggs ?? []).filter(egg => !egg.inside).entries()) {
     const { x, y } = plot(egg.x, egg.y);
@@ -103,6 +110,7 @@ export function drawScene(canvas: HTMLCanvasElement, state: SceneState, position
   for (const plant of [...state.plants].sort((a, b) => a.y - b.y || a.x - b.x)) {
     const { x, y: base } = plot(plant.x, plant.y);
     g.save(); g.translate(x, base); g.scale(scale, scale); g.translate(-x, -base);
+    if (drawNeighborPlant(g, plant, x, base, night)) { g.restore(); continue; }
     const height = 13 + plant.stage * 20;
     const leaves = 1 + plant.stage * 2;
     g.strokeStyle = plant.dry ? '#87926a' : '#417e4c';
@@ -157,7 +165,9 @@ export function drawScene(canvas: HTMLCanvasElement, state: SceneState, position
   const locations = bugPositions(surfaceBugs, positions, sceneSize(state));
   for (const bug of surfaceBugs) {
     const location = locations.get(bug.id)!;
-    const x = location.x, y = location.y - (bug.flying ? 30 * scale : 0);
+    const host = (bug.species === 'aphid' || bug.species === 'ladybug') ? state.plants.find(p => p.x === bug.x && p.y === bug.y) : undefined;
+    const onLeaf = host ? (13 + host.stage * 20) * .6 * scale : 0;
+    const x = location.x, y = location.y - (bug.flying ? 30 * scale : onLeaf);
     g.save(); g.translate(x, y); g.scale(scale, scale); g.translate(-x, -y);
     g.fillStyle = 'rgba(33,28,20,.26)';
     g.beginPath(); g.ellipse(x, y + 9, 14, 4, 0, 0, Math.PI * 2); g.fill();
@@ -191,6 +201,8 @@ export function drawScene(canvas: HTMLCanvasElement, state: SceneState, position
       for (const [dx, radius] of [[-7, 5], [0, 3], [6, 4]]) { g.beginPath(); g.ellipse(x + dx, y, radius, radius * .75, 0, 0, Math.PI * 2); g.fill(); }
       for (const side of [-1, 1]) { g.beginPath(); g.moveTo(x + 8, y + side * 2); g.lineTo(x + 14, y + side * 6); g.stroke(); }
       if (bug.carrying) { g.fillStyle = '#edc06f'; g.beginPath(); g.arc(x + 13, y, 3, 0, Math.PI * 2); g.fill(); }
+    } else if (bug.species === 'ladybug') {
+      drawLadybug(g, x, y, night);
     } else if (bug.species === 'beetle') {
       g.fillStyle = '#684337'; g.beginPath(); g.ellipse(x, y, 13, 9, 0, 0, Math.PI * 2); g.fill();
       g.fillStyle = '#b57242'; g.beginPath(); g.ellipse(x, y - 2, 11, 7, 0, 0, Math.PI * 2); g.fill();
@@ -248,7 +260,7 @@ export function createLandRenderer(canvas: HTMLCanvasElement): { setState(state:
       if (disposed) return;
       const now = performance.now();
       const removed = state ? state.bugs.filter(bug => !next.bugs.some(current => current.id === bug.id) && next.bugs.some(hunter =>
-        hunter.x === bug.x && hunter.y === bug.y && (hunter.species === 'spider' ? bug.species !== 'spider' : hunter.species === 'beetle' && bug.species === 'aphid')))
+        hunter.x === bug.x && hunter.y === bug.y && (hunter.species === 'spider' ? bug.species !== 'spider' : ['beetle', 'ladybug'].includes(hunter.species) && bug.species === 'aphid')))
         .map(bug => ({ x: bug.x, y: bug.y })) : [];
       if (removed.length) { hits = removed; hitAt = now; }
       const oldPositions = currentPositions(now);

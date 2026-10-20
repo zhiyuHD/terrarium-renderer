@@ -1,9 +1,11 @@
+import { drawNeighborPlant } from './neighbors.js';
 import type { FlowerPlant } from './types.js';
 
 /** Shared flower geometry for live scenes and recorded frames. */
 export function drawPlantFlowers(g: CanvasRenderingContext2D, plant: FlowerPlant, x: number, y: number, night: boolean): void {
   const stage = plant.flower;
-  if (!stage) return;
+  if (!stage && !plant.seedHead) return;
+  if (drawNeighborPlant(g, { ...plant, stage: 3, dry: false }, x, y + 73, night, true)) return;
   g.save(); g.translate(x, y); g.lineCap = 'round';
   const stem = (tx: number, ty: number): void => {
     g.strokeStyle = '#568451'; g.lineWidth = 2;
