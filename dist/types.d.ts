@@ -18,6 +18,9 @@ export interface Nest extends Position {
     depth: number;
     food: number;
     foodCapacity?: number;
+    size?: number;
+    entrances?: Position[];
+    digProgress?: number;
 }
 export interface FlowerPlant {
     species: string;

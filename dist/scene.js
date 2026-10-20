@@ -90,10 +90,11 @@ export function drawScene(canvas, state, positions = new Map(), hits = []) {
             g.rect(left, top, cellWidth, cellHeight);
             g.stroke();
         }
-    for (const nest of state.nests ?? []) {
-        const { x, y } = plot(nest.x, nest.y);
-        drawAntNest(g, x, y, night);
-    }
+    for (const colony of state.nests ?? [])
+        for (const nest of [colony, ...(colony.entrances ?? [])]) {
+            const { x, y } = plot(nest.x, nest.y);
+            drawAntNest(g, x, y, night);
+        }
     for (const web of state.webs ?? []) {
         const { x, y } = plot(web.x, web.y);
         g.save();

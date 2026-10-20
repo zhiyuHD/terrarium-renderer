@@ -74,7 +74,7 @@ export function drawScene(canvas: HTMLCanvasElement, state: SceneState, position
     g.strokeStyle = night ? '#dce9c51c' : '#f9efd42e'; g.lineWidth = 1;
     g.beginPath(); g.rect(left, top, cellWidth, cellHeight); g.stroke();
   }
-  for (const nest of state.nests ?? []) {
+  for (const colony of state.nests ?? []) for (const nest of [colony, ...(colony.entrances ?? [])]) {
     const { x, y } = plot(nest.x, nest.y);
     drawAntNest(g, x, y, night);
   }

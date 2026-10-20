@@ -2,7 +2,7 @@ export interface Position { x: number; y: number }
 export interface NestPosition extends Position { nestId: string }
 export interface Facility extends Position { kind: string; enabled: boolean }
 export interface SceneDimensions { gridSize?: number; facilities?: Facility[] }
-export interface Nest extends Position { id: string; depth: number; food: number; foodCapacity?: number }
+export interface Nest extends Position { id: string; depth: number; food: number; foodCapacity?: number; size?: number; entrances?: Position[]; digProgress?: number }
 export interface FlowerPlant { species: string; flower?: 'bud' | 'bloom'; seedHead?: boolean; health?: number; leafDamage?: number }
 export interface LandScene extends SceneDimensions {
   phase: 'day' | 'night';
