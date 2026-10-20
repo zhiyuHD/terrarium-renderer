@@ -1,3 +1,4 @@
+import { plantAppearance, drawLeaf } from './plant-appearance.js';
 /** Distinct silhouettes stay inside a land cell's existing resident scale. */
 export function drawNeighborPlant(g, plant, x, base, night, flowersOnly = false) {
     if (plant.species !== 'sunflower' && plant.species !== 'mint')
@@ -6,8 +7,8 @@ export function drawNeighborPlant(g, plant, x, base, night, flowersOnly = false)
     g.save();
     g.translate(x, base);
     g.lineCap = 'round';
-    const stem = plant.dry ? '#87926a' : night ? '#527851' : '#528451';
-    const leaf = plant.dry ? '#9ca573' : night ? '#5c906c' : '#6db786';
+    const appearance = plantAppearance(plant, night);
+    const stem = appearance.stem;
     g.strokeStyle = stem;
     g.lineWidth = 3 + plant.stage;
     if (plant.species === 'sunflower') {
@@ -18,18 +19,7 @@ export function drawNeighborPlant(g, plant, x, base, night, flowersOnly = false)
             g.stroke();
             for (let i = 0; i <= plant.stage; i++) {
                 const side = i % 2 ? -1 : 1, cy = -10 - i * 15;
-                g.fillStyle = leaf;
-                g.beginPath();
-                g.moveTo(0, cy);
-                g.bezierCurveTo(side * 25, cy - 22, side * 35, cy - 5, side * 18, cy + 1);
-                g.quadraticCurveTo(side * 7, cy + 5, 0, cy);
-                g.fill();
-                g.strokeStyle = stem;
-                g.lineWidth = 1;
-                g.beginPath();
-                g.moveTo(0, cy);
-                g.lineTo(side * 23, cy - 7);
-                g.stroke();
+                drawLeaf(g, appearance, side * 17, cy - 5 + appearance.wilt * 5, 19, 11, -side * (.35 - appearance.wilt * .7), i, 'pointed');
             }
         }
         if (plant.seedHead) {
@@ -110,18 +100,7 @@ export function drawNeighborPlant(g, plant, x, base, night, flowersOnly = false)
                     for (const direction of [-1, 1]) {
                         const cy = -8 + top * (.18 + level * .2), cx = endX * Math.min(1, cy / top * 1.3);
                         const tipX = cx + direction * (13 + plant.stage * 1.5), tipY = cy - 9;
-                        g.fillStyle = leaf;
-                        g.beginPath();
-                        g.moveTo(cx, cy);
-                        g.quadraticCurveTo(cx + direction * 17, cy + 4, tipX, tipY);
-                        g.quadraticCurveTo(cx + direction * 5, cy - 14, cx, cy);
-                        g.fill();
-                        g.strokeStyle = night ? '#9ab596' : '#b0d5a7';
-                        g.lineWidth = .7;
-                        g.beginPath();
-                        g.moveTo(cx, cy);
-                        g.lineTo(tipX, tipY);
-                        g.stroke();
+                        drawLeaf(g, appearance, (cx + tipX) / 2, (cy + tipY) / 2 + appearance.wilt * 4, 10 + plant.stage, 6, -direction * (.4 - appearance.wilt * .8), level + (side + 1) * 4 + (direction + 1) / 2, 'pointed');
                     }
             }
             if (plant.flower)

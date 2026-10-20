@@ -3,7 +3,7 @@ export interface NestPosition extends Position { nestId: string }
 export interface Facility extends Position { kind: string; enabled: boolean }
 export interface SceneDimensions { gridSize?: number; facilities?: Facility[] }
 export interface Nest extends Position { id: string; depth: number; food: number; foodCapacity?: number }
-export interface FlowerPlant { species: string; flower?: 'bud' | 'bloom'; seedHead?: boolean }
+export interface FlowerPlant { species: string; flower?: 'bud' | 'bloom'; seedHead?: boolean; health?: number; leafDamage?: number }
 export interface LandScene extends SceneDimensions {
   phase: 'day' | 'night';
   soil?: Array<Position & { moisture: number; daylight?: number }>;
@@ -19,7 +19,7 @@ export interface LandScene extends SceneDimensions {
 export interface WaterScene extends SceneDimensions {
   phase: 'day' | 'night'; oxygen: number; cleanliness: number;
   fish: Array<Position & { id: string; species: string }>;
-  plants: Array<Position & { species: string; stage: number }>;
+  plants: Array<Position & { species: string; stage: number; health?: number }>;
   food: Array<Position & { portions: number }>;
 }
 export function sceneSize(scene: SceneDimensions): number { return scene.gridSize ?? 5; }

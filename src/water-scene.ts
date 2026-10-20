@@ -1,3 +1,4 @@
+import { plantAppearance, drawLeaf } from './plant-appearance.js';
 import { cellPosition, residentScale, WATER_SURFACE } from './geometry.js';
 import { sceneSize, type WaterScene as AquariumFrame } from './types.js';
 
@@ -31,9 +32,12 @@ export function createWaterScene(canvas: HTMLCanvasElement) {
       for (const plant of state.plants) {
         const p = position(plant.x, plant.y), h = 22 + plant.stage * 9;
         g.save(); g.translate(p.x, p.y); g.scale(scale, scale); g.translate(-p.x, -p.y);
-        g.strokeStyle = plant.species === 'algae' ? '#506f37' : '#236e46'; g.lineWidth = 5;
-        for (let strand = -1; strand <= 1; strand++) { g.beginPath(); g.moveTo(p.x + strand * 10, p.y + 22); g.quadraticCurveTo(p.x + strand * 18 + Math.sin(now / 1000) * 2, p.y, p.x + strand * 12, p.y + 22 - h); g.stroke(); }
-        if (plant.species === 'waterlily') { g.fillStyle = '#e7b8cf'; g.beginPath(); g.ellipse(p.x, p.y - h + 22, 13, 6, 0, 0, Math.PI * 2); g.fill(); }
+        const appearance = plantAppearance(plant, night);
+        g.strokeStyle = appearance.stem; g.lineWidth = 5;
+        for (let strand = -1; strand <= 1; strand++) { g.beginPath(); g.moveTo(p.x + strand * 10, p.y + 22); g.quadraticCurveTo(p.x + strand * 18 + Math.sin(now / 1000) * 2, p.y, p.x + strand * 12, p.y + 22 - h * (1 - appearance.wilt * .35)); g.stroke();
+          if (plant.species !== 'algae') for (let i = 0; i < 2; i++) drawLeaf(g, appearance, p.x + strand * 12 + (i % 2 ? -5 : 5), p.y + 12 - h * (.25 + i * .28), 9, 4, (i % 2 ? -.5 : .5) + appearance.wilt * .5, i);
+        }
+        if (plant.species === 'waterlily') { g.fillStyle = (plant.health ?? 100) > 35 ? '#e7b8cf' : appearance.leaf; g.beginPath(); g.ellipse(p.x, p.y - h + 22, 13, 6, 0, 0, Math.PI * 2); g.fill(); }
         g.restore();
       }
       for (const food of state.food) { const p = position(food.x, food.y); g.fillStyle = '#f4ca77'; for (let i = 0; i < food.portions; i++) { g.beginPath(); g.arc(p.x + (i % 4) * 5 - 8, p.y + Math.floor(i / 4) * 5, 2, 0, Math.PI * 2); g.fill(); } }

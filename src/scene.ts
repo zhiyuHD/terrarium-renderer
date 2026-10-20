@@ -1,6 +1,7 @@
 import { sceneSize, type LandScene as SceneState } from './types.js';
 import { LAND_SURFACE, plotPosition, residentScale } from './geometry.js';
 export { plotPosition } from './geometry.js';
+import { plantAppearance, drawLeaf } from './plant-appearance.js';
 import { drawNeighborPlant, drawLadybug } from './neighbors.js';
 import { drawPlantFlowers } from './flowers.js';
 import { createNestViewer } from './nest-viewer.js';
@@ -110,23 +111,21 @@ export function drawScene(canvas: HTMLCanvasElement, state: SceneState, position
   for (const plant of [...state.plants].sort((a, b) => a.y - b.y || a.x - b.x)) {
     const { x, y: base } = plot(plant.x, plant.y);
     g.save(); g.translate(x, base); g.scale(scale, scale); g.translate(-x, -base);
+    const appearance = plantAppearance(plant, night);
+    if (appearance.wilt > 0) { g.translate(x, base); g.rotate(appearance.wilt * .16); g.scale(1, 1 - appearance.wilt * .12); g.translate(-x, -base); }
     if (drawNeighborPlant(g, plant, x, base, night)) { g.restore(); continue; }
     const height = 13 + plant.stage * 20;
     const leaves = 1 + plant.stage * 2;
-    g.strokeStyle = plant.dry ? '#87926a' : '#417e4c';
+    g.strokeStyle = appearance.stem;
     g.lineWidth = 4 + plant.stage; g.lineCap = 'round';
     g.beginPath(); g.moveTo(x, base); g.quadraticCurveTo(x - 8, base - height * .6, x, base - height); g.stroke();
     for (let i = 0; i < leaves; i++) {
       const side = i % 2 ? -1 : 1;
       const y = base - height * (.35 + .6 * i / Math.max(1, leaves - 1));
-      g.fillStyle = plant.dry ? '#a4ad77' : i % 2 ? '#64aa6d' : '#7abb77';
-      g.beginPath();
-      g.ellipse(x + side * (9 + plant.stage * 3), y - 7, 11 + plant.stage * 3, plant.species === 'fern' ? 7 : 11, -side * .45, 0, Math.PI * 2);
-      g.fill();
+      drawLeaf(g, appearance, x + side * (9 + plant.stage * 3), y - 7 + appearance.wilt * 6, 11 + plant.stage * 3, plant.species === 'fern' ? 7 : 11, -side * (.45 - appearance.wilt * .8), i);
     }
     if (plant.species === 'clover' && plant.stage > 1) {
-      g.fillStyle = plant.dry ? '#a4ad77' : '#74b878';
-      for (const dx of [-8, 0, 8]) { g.beginPath(); g.arc(x + dx, base - height, 9, 0, Math.PI * 2); g.fill(); }
+      for (const [i, dx] of [-8, 0, 8].entries()) drawLeaf(g, appearance, x + dx, base - height, 9, 9, 0, i);
     }
     drawPlantFlowers(g, plant, x, base - height, night);
     g.restore();

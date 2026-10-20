@@ -1,3 +1,4 @@
+import { plantAppearance, drawLeaf } from './plant-appearance.js';
 import { cellPosition, residentScale, WATER_SURFACE } from './geometry.js';
 import { sceneSize } from './types.js';
 export function createWaterScene(canvas) {
@@ -49,16 +50,20 @@ export function createWaterScene(canvas) {
                 g.translate(p.x, p.y);
                 g.scale(scale, scale);
                 g.translate(-p.x, -p.y);
-                g.strokeStyle = plant.species === 'algae' ? '#506f37' : '#236e46';
+                const appearance = plantAppearance(plant, night);
+                g.strokeStyle = appearance.stem;
                 g.lineWidth = 5;
                 for (let strand = -1; strand <= 1; strand++) {
                     g.beginPath();
                     g.moveTo(p.x + strand * 10, p.y + 22);
-                    g.quadraticCurveTo(p.x + strand * 18 + Math.sin(now / 1000) * 2, p.y, p.x + strand * 12, p.y + 22 - h);
+                    g.quadraticCurveTo(p.x + strand * 18 + Math.sin(now / 1000) * 2, p.y, p.x + strand * 12, p.y + 22 - h * (1 - appearance.wilt * .35));
                     g.stroke();
+                    if (plant.species !== 'algae')
+                        for (let i = 0; i < 2; i++)
+                            drawLeaf(g, appearance, p.x + strand * 12 + (i % 2 ? -5 : 5), p.y + 12 - h * (.25 + i * .28), 9, 4, (i % 2 ? -.5 : .5) + appearance.wilt * .5, i);
                 }
                 if (plant.species === 'waterlily') {
-                    g.fillStyle = '#e7b8cf';
+                    g.fillStyle = (plant.health ?? 100) > 35 ? '#e7b8cf' : appearance.leaf;
                     g.beginPath();
                     g.ellipse(p.x, p.y - h + 22, 13, 6, 0, 0, Math.PI * 2);
                     g.fill();

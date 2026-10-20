@@ -23,6 +23,8 @@ export interface FlowerPlant {
     species: string;
     flower?: 'bud' | 'bloom';
     seedHead?: boolean;
+    health?: number;
+    leafDamage?: number;
 }
 export interface LandScene extends SceneDimensions {
     phase: 'day' | 'night';
@@ -76,6 +78,7 @@ export interface WaterScene extends SceneDimensions {
     plants: Array<Position & {
         species: string;
         stage: number;
+        health?: number;
     }>;
     food: Array<Position & {
         portions: number;
