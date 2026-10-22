@@ -1,4 +1,4 @@
-import { plantAppearance, drawLeaf } from './plant-appearance.js';
+import { drawWaterPlant, drawWaterFish } from './water-residents.js';
 import { cellPosition, residentScale, WATER_SURFACE } from './geometry.js';
 import { sceneSize, type WaterScene as AquariumFrame } from './types.js';
 
@@ -30,14 +30,9 @@ export function createWaterScene(canvas: HTMLCanvasElement) {
       g.lineWidth = 1; g.strokeStyle = '#ffffff25';
       for (let x = 0; x < sceneSize(state); x++) for (let y = 0; y < sceneSize(state); y++) { const p = position(x, y); g.strokeRect(p.x - WATER_SURFACE.width / size / 2, p.y - WATER_SURFACE.height / size / 2, WATER_SURFACE.width / size, WATER_SURFACE.height / size); }
       for (const plant of state.plants) {
-        const p = position(plant.x, plant.y), h = 22 + plant.stage * 9;
+        const p = position(plant.x, plant.y);
         g.save(); g.translate(p.x, p.y); g.scale(scale, scale); g.translate(-p.x, -p.y);
-        const appearance = plantAppearance(plant, night);
-        g.strokeStyle = appearance.stem; g.lineWidth = 5;
-        for (let strand = -1; strand <= 1; strand++) { g.beginPath(); g.moveTo(p.x + strand * 10, p.y + 22); g.quadraticCurveTo(p.x + strand * 18 + Math.sin(now / 1000) * 2, p.y, p.x + strand * 12, p.y + 22 - h * (1 - appearance.wilt * .35)); g.stroke();
-          if (plant.species !== 'algae') for (let i = 0; i < 2; i++) drawLeaf(g, appearance, p.x + strand * 12 + (i % 2 ? -5 : 5), p.y + 12 - h * (.25 + i * .28), 9, 4, (i % 2 ? -.5 : .5) + appearance.wilt * .5, i);
-        }
-        if (plant.species === 'waterlily') { g.fillStyle = (plant.health ?? 100) > 35 ? '#e7b8cf' : appearance.leaf; g.beginPath(); g.ellipse(p.x, p.y - h + 22, 13, 6, 0, 0, Math.PI * 2); g.fill(); }
+        g.translate(p.x, p.y); drawWaterPlant(g, plant, now, night);
         g.restore();
       }
       for (const food of state.food) { const p = position(food.x, food.y); g.fillStyle = '#f4ca77'; for (let i = 0; i < food.portions; i++) { g.beginPath(); g.arc(p.x + (i % 4) * 5 - 8, p.y + Math.floor(i / 4) * 5, 2, 0, Math.PI * 2); g.fill(); } }
@@ -64,10 +59,7 @@ export function createWaterScene(canvas: HTMLCanvasElement) {
         p.x += (index % columns - (Math.min(columns, companions.length - Math.floor(index / columns) * columns) - 1) / 2) * 24 * scale;
         p.y += (Math.floor(index / columns) - (rows - 1) / 2) * Math.min(16 * scale, 24 / rows);
         g.save(); g.translate(p.x, p.y); g.scale(scale, scale); g.translate(-p.x, -p.y);
-        g.fillStyle = fish.species === 'goldfish' ? '#f3a545' : fish.species === 'perch' ? '#718f78' : '#b9b3e5';
-        g.beginPath(); g.moveTo(p.x - 15, p.y); g.lineTo(p.x - 30, p.y - 12); g.lineTo(p.x - 30, p.y + 12); g.closePath(); g.fill();
-        g.beginPath(); g.ellipse(p.x, p.y, fish.species === 'perch' ? 24 : 18, 11, 0, 0, Math.PI * 2); g.fill();
-        g.fillStyle = '#172e38'; g.beginPath(); g.arc(p.x + 10, p.y - 3, 2, 0, Math.PI * 2); g.fill();
+        g.translate(p.x, p.y); drawWaterFish(g, fish.species, now, night);
         g.restore();
       }
     }

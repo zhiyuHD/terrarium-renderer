@@ -19,7 +19,7 @@ export interface LandScene extends SceneDimensions {
 export interface WaterScene extends SceneDimensions {
   phase: 'day' | 'night'; oxygen: number; cleanliness: number;
   fish: Array<Position & { id: string; species: string }>;
-  plants: Array<Position & { species: string; stage: number; health?: number }>;
+  plants: Array<Position & { species: string; stage: number; health?: number; flower?: 'bud' | 'bloom' }>;
   food: Array<Position & { portions: number }>;
 }
 export function sceneSize(scene: SceneDimensions): number { return scene.gridSize ?? 5; }

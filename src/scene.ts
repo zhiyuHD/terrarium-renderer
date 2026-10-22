@@ -133,7 +133,14 @@ export function drawScene(canvas: HTMLCanvasElement, state: SceneState, position
   for (const facility of state.facilities ?? []) {
     const { x, y } = plot(facility.x, facility.y);
     g.save(); g.translate(x, y); g.scale(scale, scale); g.translate(-x, -y); g.globalAlpha = facility.enabled ? 1 : .35;
-    if (facility.kind === 'mulch') {
+    if (facility.kind === 'compost_bin') {
+      g.fillStyle = '#795e40'; g.beginPath(); g.roundRect(x - 18, y - 30, 36, 37, 5); g.fill();
+      g.strokeStyle = '#b99d6a'; g.lineWidth = 2;
+      for (const dy of [-23, -13, -3]) { g.beginPath(); g.moveTo(x - 14, y + dy); g.lineTo(x + 14, y + dy); g.stroke(); }
+      g.fillStyle = '#4d6547'; g.beginPath(); g.ellipse(x, y - 30, 19, 6, 0, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = '#bdd29a'; g.lineWidth = 2; g.beginPath(); g.moveTo(x, y - 31); g.lineTo(x, y - 40); g.stroke();
+      g.fillStyle = '#91b77b'; g.beginPath(); g.ellipse(x + 4, y - 38, 6, 3, -.5, 0, Math.PI * 2); g.fill();
+    } else if (facility.kind === 'mulch') {
       g.fillStyle = '#b79157'; g.beginPath(); g.ellipse(x, y, 24, 10, 0, 0, Math.PI * 2); g.fill();
       g.strokeStyle = '#74522f'; g.lineWidth = 2;
       for (let i = -2; i <= 2; i++) { g.beginPath(); g.moveTo(x + i * 7 - 3, y - 4); g.lineTo(x + i * 7 + 3, y + 4); g.stroke(); }

@@ -82,6 +82,7 @@ export interface WaterScene extends SceneDimensions {
         species: string;
         stage: number;
         health?: number;
+        flower?: 'bud' | 'bloom';
     }>;
     food: Array<Position & {
         portions: number;

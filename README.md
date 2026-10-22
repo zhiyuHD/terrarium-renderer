@@ -18,3 +18,5 @@ Use an 800×500 canvas and scale its CSS width to fit the container. `createScen
 Run `npm run build`, `npm run typecheck` and `npm test` before publishing. Build output contains native ESM and TypeScript declarations.
 
 `Nest.size` optionally expands the interior grid from 4×4 to 8×8; omitted values render 4×4. Extra `Nest.entrances` are surface coordinates opening the same colony. Large interiors scroll horizontally on narrow displays. Occupancy, expansion and filled-soil rules belong to the caller.
+
+Water plants may supply a computed `flower` (`bud` or `bloom`); the renderer does not infer flowering from stage or age. Waterlilies have floating pads, hornwort has whorled foliage, and duckweed has paired fronds and hanging roots. Neon tetras have blue/red stripes; corydoras have spotted bodies and barbels. `compost_bin` renders a wooden land bin. These species add no simulation or runtime dependencies.
