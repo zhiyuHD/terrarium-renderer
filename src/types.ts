@@ -5,11 +5,12 @@ export interface SceneDimensions { gridSize?: number; facilities?: Facility[] }
 export interface Nest extends Position { id: string; depth: number; food: number; foodCapacity?: number; size?: number; entrances?: Position[]; digProgress?: number }
 export interface FlowerPlant { species: string; flower?: 'bud' | 'bloom'; seedHead?: boolean; health?: number; leafDamage?: number }
 export interface LandScene extends SceneDimensions {
+  economy?: { pots: Array<Position & { kind: string }> };
   phase: 'day' | 'night';
   soil?: Array<Position & { moisture: number; daylight?: number }>;
   eggs?: Array<Position & { id: string; species: string; hatchesAtMs: number; inside?: NestPosition }>;
   nests?: Nest[];
-  food?: Array<Position & { portions: number; kind?: 'sunflower_seed' }>;
+  food?: Array<Position & { portions: number; kind?: 'sunflower_seed' | 'flower_seed' }>;
   webs?: Position[];
   plants: Array<Position & FlowerPlant & { id: string; stage: number; dry: boolean }>;
   seeds: Array<Position & { id: string; species: string }>;
@@ -18,7 +19,8 @@ export interface LandScene extends SceneDimensions {
 }
 export interface WaterScene extends SceneDimensions {
   phase: 'day' | 'night'; oxygen: number; cleanliness: number;
-  fish: Array<Position & { id: string; species: string }>;
+  fish: Array<Position & { id: string; species: string; juvenile?: boolean }>;
+  eggs?: Array<Position & { id: string; species: string; health: number; incubationHours: number }>;
   plants: Array<Position & { species: string; stage: number; health?: number; flower?: 'bud' | 'bloom' }>;
   food: Array<Position & { portions: number }>;
 }

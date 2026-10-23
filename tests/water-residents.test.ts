@@ -32,3 +32,16 @@ it('draws an immutable mixed water scene and cancels the animation on disposal',
   expect(state).toEqual(original); expect(canvas.getContext('2d').getImageData(300, 200, 1, 1).data[3]).toBe(255);
   renderer.dispose(); expect(next).toBeUndefined(); renderer.setState(state); expect(next).toBeUndefined();
 });
+
+it('shows eggs, incubation and juvenile size without changing a supplied snapshot', () => {
+  let next: FrameRequestCallback | undefined;
+  vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => { next = callback; return 1; });
+  vi.stubGlobal('cancelAnimationFrame', () => {});
+  const canvas = createCanvas(800, 500), renderer = createWaterScene(canvas as unknown as HTMLCanvasElement);
+  const base: WaterScene = { phase: 'day', oxygen: 80, cleanliness: 80, plants: [], food: [], fish: [{ id: 'fish', species: 'neon_tetra', x: 2, y: 2 }] };
+  const render = (state: WaterScene) => { const saved = structuredClone(state); renderer.setState(state); next!(0); expect(state).toEqual(saved); return canvas.toBuffer().toString('base64'); };
+  const adult = render(base), juvenile = render({ ...base, fish: [{ ...base.fish[0], juvenile: true }] });
+  const eggs = [{ id: 'egg', species: 'neon_tetra', x: 1, y: 1, health: 100, incubationHours: 0 }];
+  const laid = render({ ...base, eggs }), ready = render({ ...base, eggs: [{ ...eggs[0], incubationHours: 3.9 }] });
+  expect(new Set([adult, juvenile, laid, ready]).size).toBe(4); renderer.dispose();
+});

@@ -116,6 +116,24 @@ export function createWaterScene(canvas) {
                 }
                 g.restore();
             }
+            for (const [index, egg] of (state.eggs ?? []).entries()) {
+                const p = position(egg.x, egg.y);
+                g.save();
+                g.translate(p.x + index % 3 * 7 - 7, p.y + 12);
+                g.scale(scale, scale);
+                g.fillStyle = '#f5e7c577';
+                g.strokeStyle = '#e6efdd';
+                g.lineWidth = 1;
+                g.beginPath();
+                g.ellipse(0, 0, 5, 6, .2, 0, Math.PI * 2);
+                g.fill();
+                g.stroke();
+                g.fillStyle = egg.health < 30 ? '#b38f78' : '#9b8663';
+                g.beginPath();
+                g.arc(0, 0, 1.2 + Math.min(1, egg.incubationHours / 4) * 1.5, 0, Math.PI * 2);
+                g.fill();
+                g.restore();
+            }
             const points = locations(now);
             for (const fish of state.fish) {
                 const p = position(points.get(fish.id).x, points.get(fish.id).y);
@@ -129,6 +147,8 @@ export function createWaterScene(canvas) {
                 g.scale(scale, scale);
                 g.translate(-p.x, -p.y);
                 g.translate(p.x, p.y);
+                if (fish.juvenile)
+                    g.scale(.55, .55);
                 drawWaterFish(g, fish.species, now, night);
                 g.restore();
             }

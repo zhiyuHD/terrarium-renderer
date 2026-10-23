@@ -1,7 +1,7 @@
 <!-- Owner: src/index.ts, src/types.ts -->
 # terrarium-renderer
 
-Canvas land and water ecosystem scenes, movement animation, flowers and nest inspection. This package has no runtime dependencies and does not simulate, save, score or upload ecosystems.
+Canvas land and water ecosystem scenes, ten pot finishes, movement animation, flowers and nest inspection. This package has no runtime dependencies and does not simulate, save, score or upload ecosystems.
 
 ```js
 import { createScene } from 'terrarium-renderer';
@@ -20,3 +20,7 @@ Run `npm run build`, `npm run typecheck` and `npm test` before publishing. Build
 `Nest.size` optionally expands the interior grid from 4×4 to 8×8; omitted values render 4×4. Extra `Nest.entrances` are surface coordinates opening the same colony. Large interiors scroll horizontally on narrow displays. Occupancy, expansion and filled-soil rules belong to the caller.
 
 Water plants may supply a computed `flower` (`bud` or `bloom`); the renderer does not infer flowering from stage or age. Waterlilies have floating pads, hornwort has whorled foliage, and duckweed has paired fronds and hanging roots. Neon tetras have blue/red stripes; corydoras have spotted bodies and barbels. `compost_bin` renders a wooden land bin. These species add no simulation or runtime dependencies.
+
+Daisies and lavender use caller-supplied flower stages and foliage health; bees and butterflies have distinct silhouettes. Optional water `eggs` carry coordinates, species, health and incubation hours, drawn as translucent eggs with growing embryos. Fish with `juvenile: true` use a smaller silhouette. The caller computes pollination, incubation and age; omitted fields preserve existing snapshots.
+
+`LandScene.economy.pots` accepts plot coordinates and a pot `kind`: `clay`, `porcelain`, `spring`, `slow`, `still`, `reservoir`, `drainage`, `shade`, `sun`, or `healing`. The renderer draws silhouettes and motifs without applying effects.

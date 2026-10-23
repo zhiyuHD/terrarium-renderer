@@ -30,6 +30,11 @@ export interface FlowerPlant {
     leafDamage?: number;
 }
 export interface LandScene extends SceneDimensions {
+    economy?: {
+        pots: Array<Position & {
+            kind: string;
+        }>;
+    };
     phase: 'day' | 'night';
     soil?: Array<Position & {
         moisture: number;
@@ -44,7 +49,7 @@ export interface LandScene extends SceneDimensions {
     nests?: Nest[];
     food?: Array<Position & {
         portions: number;
-        kind?: 'sunflower_seed';
+        kind?: 'sunflower_seed' | 'flower_seed';
     }>;
     webs?: Position[];
     plants: Array<Position & FlowerPlant & {
@@ -77,6 +82,13 @@ export interface WaterScene extends SceneDimensions {
     fish: Array<Position & {
         id: string;
         species: string;
+        juvenile?: boolean;
+    }>;
+    eggs?: Array<Position & {
+        id: string;
+        species: string;
+        health: number;
+        incubationHours: number;
     }>;
     plants: Array<Position & {
         species: string;

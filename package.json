@@ -1,6 +1,6 @@
 {
   "name": "terrarium-renderer",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "type": "module",
   "description": "Canvas land and water ecosystem scenes with nest inspection",
   "license": "MIT",

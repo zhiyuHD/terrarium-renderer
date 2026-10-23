@@ -1,3 +1,5 @@
+import { drawPot } from './pots.js';
+import { drawPollinator } from './pollinators.js';
 import { sceneSize } from './types.js';
 import { LAND_SURFACE, plotPosition, residentScale } from './geometry.js';
 export { plotPosition } from './geometry.js';
@@ -153,6 +155,10 @@ export function drawScene(canvas, state, positions = new Map(), hits = []) {
         g.beginPath();
         g.ellipse(x - 12 + index % 4 * 7, y - 4, 3, 4, -.3, 0, Math.PI * 2);
         g.fill();
+    }
+    for (const pot of state.economy?.pots ?? []) {
+        const { x, y } = plot(pot.x, pot.y);
+        drawPot(g, pot, x, y, scale, night);
     }
     for (const plant of [...state.plants].sort((a, b) => a.y - b.y || a.x - b.x)) {
         const { x, y: base } = plot(plant.x, plant.y);
@@ -321,7 +327,10 @@ export function drawScene(canvas, state, positions = new Map(), hits = []) {
         g.beginPath();
         g.ellipse(x, y + 9, 14, 4, 0, 0, Math.PI * 2);
         g.fill();
-        if (bug.flying) {
+        if (bug.species === 'bee' || bug.species === 'butterfly') {
+            drawPollinator(g, bug.species, x, y, night);
+        }
+        else if (bug.flying) {
             g.fillStyle = bug.species === 'moth' ? '#d9bfa1' : 'rgba(228,246,247,.85)';
             const span = bug.species === 'moth' ? 12 : bug.species === 'mosquito' ? 8 : 7;
             for (const side of [-1, 1]) {

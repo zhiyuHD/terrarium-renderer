@@ -1,6 +1,9 @@
+import { drawMeadowPlant } from './pollinators.js';
 import { plantAppearance, drawLeaf } from './plant-appearance.js';
 /** Distinct silhouettes stay inside a land cell's existing resident scale. */
 export function drawNeighborPlant(g, plant, x, base, night, flowersOnly = false) {
+    if (drawMeadowPlant(g, plant, x, base, night, flowersOnly))
+        return true;
     if (plant.species !== 'sunflower' && plant.species !== 'mint')
         return false;
     const height = 13 + plant.stage * 20;
