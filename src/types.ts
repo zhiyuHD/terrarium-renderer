@@ -3,8 +3,10 @@ export interface NestPosition extends Position { nestId: string }
 export interface Facility extends Position { kind: string; enabled: boolean }
 export interface SceneDimensions { gridSize?: number; facilities?: Facility[] }
 export interface Nest extends Position { id: string; depth: number; food: number; foodCapacity?: number; size?: number; entrances?: Position[]; digProgress?: number }
-export interface FlowerPlant { species: string; flower?: 'bud' | 'bloom'; seedHead?: boolean; health?: number; leafDamage?: number }
+export interface FlowerPlant { fruitReady?: boolean; species: string; flower?: 'bud' | 'bloom'; seedHead?: boolean; health?: number; leafDamage?: number }
 export interface LandScene extends SceneDimensions {
+  decorations?: Array<Position & { kind: 'stone_path' | 'wood_path' | 'pebbles' }>;
+  litter?: Array<Position & { portions: number }>;
   economy?: { pots: Array<Position & { kind: string }> };
   phase: 'day' | 'night';
   soil?: Array<Position & { moisture: number; daylight?: number }>;

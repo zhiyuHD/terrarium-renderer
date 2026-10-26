@@ -1,3 +1,5 @@
+import { createPlantTooltip } from './plant-tooltip.js';
+import { drawGardenGround, drawDecomposer } from './garden.js';
 import { drawPot } from './pots.js';
 import { drawPollinator } from './pollinators.js';
 import { sceneSize } from './types.js';
@@ -92,6 +94,7 @@ export function drawScene(canvas, state, positions = new Map(), hits = []) {
             g.rect(left, top, cellWidth, cellHeight);
             g.stroke();
         }
+    drawGardenGround(g, state, size, night);
     for (const colony of state.nests ?? [])
         for (const nest of [colony, ...(colony.entrances ?? [])]) {
             const { x, y } = plot(nest.x, nest.y);
@@ -174,6 +177,8 @@ export function drawScene(canvas, state, positions = new Map(), hits = []) {
             g.translate(-x, -base);
         }
         if (drawNeighborPlant(g, plant, x, base, night)) {
+            if (['clover', 'basil', 'bean', 'tomato', 'strawberry'].includes(plant.species))
+                drawPlantFlowers(g, plant, x, base - 16 - plant.stage * 17, night);
             g.restore();
             continue;
         }
@@ -409,6 +414,9 @@ export function drawScene(canvas, state, positions = new Map(), hits = []) {
                 g.fill();
             }
         }
+        else if (bug.species === 'snail' || bug.species === 'woodlouse') {
+            drawDecomposer(g, bug.species, x, y, night);
+        }
         else if (bug.species === 'ladybug') {
             drawLadybug(g, x, y, night);
         }
@@ -535,8 +543,9 @@ export function createLandRenderer(canvas) {
 export function createScene(canvas, language = 'zh') {
     const renderer = createLandRenderer(canvas);
     const viewer = createNestViewer(canvas, language);
+    const tooltip = createPlantTooltip(canvas, language);
     return {
-        setState(state, recordedAtMs) { renderer.setState(state); viewer.setState(state, recordedAtMs); },
-        dispose() { viewer.dispose(); renderer.dispose(); },
+        setState(state, recordedAtMs) { renderer.setState(state); viewer.setState(state, recordedAtMs); tooltip.setState(state); },
+        dispose() { tooltip.dispose(); viewer.dispose(); renderer.dispose(); },
     };
 }

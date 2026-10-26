@@ -6,6 +6,12 @@ export function drawWaterPlant(g: CanvasRenderingContext2D, plant: WaterPlant, n
   const appearance = plantAppearance(plant, night), height = 22 + plant.stage * 9;
   const sway = Math.sin(now / 1600) * 2;
   g.strokeStyle = appearance.stem; g.fillStyle = appearance.leaf; g.lineWidth = 2;
+  if (plant.species === 'vallisneria') {
+    for (let i=-2;i<=2;i++){g.lineWidth=4;g.strokeStyle=i%2?appearance.leaf:appearance.youngLeaf;g.beginPath();g.moveTo(i*4,22);g.bezierCurveTo(i*8,-height*.25,i*15+sway,-height*.7,i*10+sway,-height);g.stroke();}return;
+  }
+  if (plant.species === 'java_moss') {
+    for(let i=0;i<16;i++){const x=(i%5-2)*7,y=18-Math.floor(i/5)*8;g.strokeStyle=i%2?appearance.leaf:appearance.youngLeaf;g.lineWidth=2;g.beginPath();g.moveTo(x,y+7);g.lineTo(x+sway,y-7);g.moveTo(x-5,y-2);g.lineTo(x+sway,y+2);g.lineTo(x+6,y-3);g.stroke();}return;
+  }
   if (plant.species === 'duckweed') {
     for (let i = 0; i < 3 + plant.stage; i++) {
       const x = (i % 3 - 1) * 14 + sway, y = Math.floor(i / 3) * 10 - 8;
@@ -61,6 +67,17 @@ export function drawWaterPlant(g: CanvasRenderingContext2D, plant: WaterPlant, n
 }
 
 export function drawWaterFish(g: CanvasRenderingContext2D, species: string, now: number, night: boolean): void {
+  if (species === 'aquatic_snail' || species === 'shrimp') {
+    g.fillStyle = species === 'shrimp' ? '#d99882' : '#c3ad7d';
+    g.beginPath(); g.ellipse(0, 3, 13, 5, -.15, 0, Math.PI*2); g.fill();
+    g.strokeStyle = '#f2dfb3'; g.lineWidth = 1;
+    if (species === 'aquatic_snail') {
+      g.fillStyle = '#a98c61'; g.beginPath(); g.arc(-2,-3,8,0,Math.PI*2);g.fill();
+      g.beginPath();for(let i=0;i<40;i++){const a=i*.22,r=i*.14;g.lineTo(-2+Math.cos(a)*r,-3+Math.sin(a)*r);}g.stroke();
+    } else {for(let i=-6;i<=6;i+=4){g.beginPath();g.moveTo(i,3);g.lineTo(i-3,10);g.stroke();}g.beginPath();g.moveTo(11,0);g.quadraticCurveTo(24,-12,29,-5);g.stroke();}
+    g.fillStyle = '#33493d';g.beginPath();g.arc(9,0,1.3,0,Math.PI*2);g.fill();return;
+  }
+  if (species === 'medaka') { g.scale(.8,.75); }
   const neon = species === 'neon_tetra', cory = species === 'corydoras';
   const tail = Math.sin(now / 220) * 2, length = species === 'perch' ? 24 : neon ? 17 : 18;
   const color = species === 'goldfish' ? '#f3a545' : species === 'perch' ? '#718f78' : cory ? '#d4c09a' : neon ? '#8dcbd0' : '#b9b3e5';

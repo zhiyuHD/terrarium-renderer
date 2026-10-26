@@ -1,3 +1,5 @@
+import { createPlantTooltip } from './plant-tooltip.js';
+import { drawGardenGround, drawDecomposer } from './garden.js';
 import { drawPot } from './pots.js';
 import { drawPollinator } from './pollinators.js';
 import { sceneSize, type LandScene as SceneState } from './types.js';
@@ -76,6 +78,7 @@ export function drawScene(canvas: HTMLCanvasElement, state: SceneState, position
     g.strokeStyle = night ? '#dce9c51c' : '#f9efd42e'; g.lineWidth = 1;
     g.beginPath(); g.rect(left, top, cellWidth, cellHeight); g.stroke();
   }
+  drawGardenGround(g, state, size, night);
   for (const colony of state.nests ?? []) for (const nest of [colony, ...(colony.entrances ?? [])]) {
     const { x, y } = plot(nest.x, nest.y);
     drawAntNest(g, x, y, night);
@@ -116,7 +119,7 @@ export function drawScene(canvas: HTMLCanvasElement, state: SceneState, position
     g.save(); g.translate(x, base); g.scale(scale, scale); g.translate(-x, -base);
     const appearance = plantAppearance(plant, night);
     if (appearance.wilt > 0) { g.translate(x, base); g.rotate(appearance.wilt * .16); g.scale(1, 1 - appearance.wilt * .12); g.translate(-x, -base); }
-    if (drawNeighborPlant(g, plant, x, base, night)) { g.restore(); continue; }
+    if (drawNeighborPlant(g, plant, x, base, night)) { if (['clover', 'basil', 'bean', 'tomato', 'strawberry'].includes(plant.species)) drawPlantFlowers(g, plant, x, base - 16 - plant.stage * 17, night); g.restore(); continue; }
     const height = 13 + plant.stage * 20;
     const leaves = 1 + plant.stage * 2;
     g.strokeStyle = appearance.stem;
@@ -212,6 +215,8 @@ export function drawScene(canvas: HTMLCanvasElement, state: SceneState, position
       for (const [dx, radius] of [[-7, 5], [0, 3], [6, 4]]) { g.beginPath(); g.ellipse(x + dx, y, radius, radius * .75, 0, 0, Math.PI * 2); g.fill(); }
       for (const side of [-1, 1]) { g.beginPath(); g.moveTo(x + 8, y + side * 2); g.lineTo(x + 14, y + side * 6); g.stroke(); }
       if (bug.carrying) { g.fillStyle = '#edc06f'; g.beginPath(); g.arc(x + 13, y, 3, 0, Math.PI * 2); g.fill(); }
+    } else if (bug.species === 'snail' || bug.species === 'woodlouse') {
+      drawDecomposer(g, bug.species, x, y, night);
     } else if (bug.species === 'ladybug') {
       drawLadybug(g, x, y, night);
     } else if (bug.species === 'beetle') {
@@ -291,9 +296,10 @@ export function createLandRenderer(canvas: HTMLCanvasElement): { setState(state:
 export function createScene(canvas: HTMLCanvasElement, language: 'zh' | 'en' = 'zh') {
   const renderer = createLandRenderer(canvas);
   const viewer = createNestViewer(canvas, language);
+  const tooltip = createPlantTooltip(canvas, language);
   return {
-    setState(state: SceneState, recordedAtMs?: number) { renderer.setState(state); viewer.setState(state, recordedAtMs); },
-    dispose() { viewer.dispose(); renderer.dispose(); },
+    setState(state: SceneState, recordedAtMs?: number) { renderer.setState(state); viewer.setState(state, recordedAtMs); tooltip.setState(state); },
+    dispose() { tooltip.dispose(); viewer.dispose(); renderer.dispose(); },
   };
 }
 

@@ -1,7 +1,7 @@
 <!-- Owner: src/index.ts, src/types.ts -->
 # terrarium-renderer
 
-Canvas land and water ecosystem scenes, ten pot finishes, movement animation, flowers and nest inspection. This package has no runtime dependencies and does not simulate, save, score or upload ecosystems.
+Canvas land and water ecosystem scenes, distinct plants and fruit, ground decorations, litter, decomposers, ten pot finishes, movement animation, plant tooltips and nest inspection. This package has no runtime dependencies and does not simulate, save, score or upload ecosystems.
 
 ```js
 import { createScene } from 'terrarium-renderer';

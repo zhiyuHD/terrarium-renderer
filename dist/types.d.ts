@@ -23,6 +23,7 @@ export interface Nest extends Position {
     digProgress?: number;
 }
 export interface FlowerPlant {
+    fruitReady?: boolean;
     species: string;
     flower?: 'bud' | 'bloom';
     seedHead?: boolean;
@@ -30,6 +31,12 @@ export interface FlowerPlant {
     leafDamage?: number;
 }
 export interface LandScene extends SceneDimensions {
+    decorations?: Array<Position & {
+        kind: 'stone_path' | 'wood_path' | 'pebbles';
+    }>;
+    litter?: Array<Position & {
+        portions: number;
+    }>;
     economy?: {
         pots: Array<Position & {
             kind: string;
