@@ -6,3 +6,4 @@ export { drawPlantFlowers } from './flowers.js';
 export * from './geometry.js';
 export type * from './types.js';
 export { drawMeadowPlant, drawPollinator } from './pollinators.js';
+export { setSceneActive, setSceneFrameRate, renderSceneFrame } from './animation.js';

@@ -24,3 +24,7 @@ Water plants may supply a computed `flower` (`bud` or `bloom`); the renderer doe
 Daisies and lavender use caller-supplied flower stages and foliage health; bees and butterflies have distinct silhouettes. Optional water `eggs` carry coordinates, species, health and incubation hours, drawn as translucent eggs with growing embryos. Fish with `juvenile: true` use a smaller silhouette. The caller computes pollination, incubation and age; omitted fields preserve existing snapshots.
 
 `LandScene.economy.pots` accepts plot coordinates and a pot `kind`: `clay`, `porcelain`, `spring`, `slow`, `still`, `reservoir`, `drainage`, `shade`, `sun`, or `healing`. The renderer draws silhouettes and motifs without applying effects.
+
+Land and water animation defaults to at most 30 frames per second and shares one animation-frame callback across canvases. `setSceneActive(canvas, false)` suspends a canvas without discarding its state; resume with `true`. `setSceneFrameRate(canvas, fps)` accepts 1–60. Removing or pausing every canvas cancels the shared callback. `dispose()` releases its scheduler registration. The caller controls page visibility and scroll pauses.
+
+`renderSceneFrame(canvas)` paints the latest supplied state once without starting or resuming animation. It can prepare a preview before the canvas enters the viewport, including while scrolling.

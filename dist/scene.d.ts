@@ -17,9 +17,11 @@ export declare function drawScene(canvas: HTMLCanvasElement, state: SceneState, 
 }>): void;
 export declare function createLandRenderer(canvas: HTMLCanvasElement): {
     setState(state: SceneState): void;
+    setActive(active: boolean): void;
     dispose(): void;
 };
 export declare function createScene(canvas: HTMLCanvasElement, language?: 'zh' | 'en'): {
+    setActive(active: boolean): void;
     setState(state: SceneState, recordedAtMs?: number): void;
     dispose(): void;
 };

@@ -1,3 +1,4 @@
+import { createSceneAnimation } from './animation.js';
 import { drawWaterPlant, drawWaterFish } from './water-residents.js';
 import { cellPosition, residentScale, WATER_SURFACE } from './geometry.js';
 import { sceneSize, type WaterScene as AquariumFrame } from './types.js';
@@ -6,7 +7,6 @@ export function createWaterScene(canvas: HTMLCanvasElement) {
   let state: AquariumFrame | undefined;
   let old = new Map<string, { x: number; y: number }>();
   let movedAt = 0;
-  let request = 0;
   let disposed = false;
   const position = (x: number, y: number) => cellPosition(WATER_SURFACE, x, y, sceneSize(state ?? {}));
   const locations = (now: number) => new Map((state?.fish ?? []).map(fish => {
@@ -72,17 +72,18 @@ export function createWaterScene(canvas: HTMLCanvasElement) {
         g.restore();
       }
     }
-    request = requestAnimationFrame(render);
   };
+  const animation = createSceneAnimation(canvas, render);
   return {
+    setActive(active: boolean) { animation.setActive(active); },
     setState(next: AquariumFrame) {
       if (disposed) return;
       const now = performance.now();
       const current = locations(now);
       if (next.fish.some(fish => { const previous = state?.fish.find(other => other.id === fish.id); return previous && (previous.x !== fish.x || previous.y !== fish.y); })) { old = current; movedAt = now; }
       state = next;
-      if (!request) request = requestAnimationFrame(render);
+      animation.request();
     },
-    dispose() { disposed = true; cancelAnimationFrame(request); },
+    dispose() { disposed = true; animation.dispose(); },
   };
 }

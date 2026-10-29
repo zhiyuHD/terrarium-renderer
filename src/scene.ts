@@ -1,3 +1,4 @@
+import { createSceneAnimation } from './animation.js';
 import { createPlantTooltip } from './plant-tooltip.js';
 import { drawGardenGround, drawDecomposer } from './garden.js';
 import { drawPot } from './pots.js';
@@ -251,13 +252,12 @@ export function drawScene(canvas: HTMLCanvasElement, state: SceneState, position
   g.beginPath(); g.roundRect(90, 460, 620, 15, 7); g.fill();
 }
 
-export function createLandRenderer(canvas: HTMLCanvasElement): { setState(state: SceneState): void; dispose(): void } {
+export function createLandRenderer(canvas: HTMLCanvasElement): { setState(state: SceneState): void; setActive(active: boolean): void; dispose(): void } {
   let state: SceneState | null = null;
   let previous = new Map<string, { x: number; y: number }>();
   let movedAt = 0;
   let hitAt = 0;
   let hits: Array<{ x: number; y: number }> = [];
-  let frame = 0;
   let disposed = false;
   const currentPositions = (now: number): Map<string, { x: number; y: number }> => {
     return new Map((state?.bugs ?? []).map(bug => {
@@ -269,9 +269,10 @@ export function createLandRenderer(canvas: HTMLCanvasElement): { setState(state:
   const render = (now: number): void => {
     if (disposed || !state) return;
     drawScene(canvas, state, currentPositions(now), hits.map(hit => ({ ...hit, strength: Math.max(0, 1 - (now - hitAt) / 900) })));
-    frame = requestAnimationFrame(render);
   };
+  const animation = createSceneAnimation(canvas, render);
   return {
+    setActive(active: boolean) { animation.setActive(active); },
     setState(next) {
       if (disposed) return;
       const now = performance.now();
@@ -286,9 +287,9 @@ export function createLandRenderer(canvas: HTMLCanvasElement): { setState(state:
       });
       if (moved) { previous = oldPositions; movedAt = now; }
       state = next;
-      if (!frame) frame = requestAnimationFrame(render);
+      animation.request();
     },
-    dispose() { disposed = true; cancelAnimationFrame(frame); },
+    dispose() { disposed = true; animation.dispose(); },
   };
 }
 
@@ -298,6 +299,7 @@ export function createScene(canvas: HTMLCanvasElement, language: 'zh' | 'en' = '
   const viewer = createNestViewer(canvas, language);
   const tooltip = createPlantTooltip(canvas, language);
   return {
+    setActive(active: boolean) { renderer.setActive(active); },
     setState(state: SceneState, recordedAtMs?: number) { renderer.setState(state); viewer.setState(state, recordedAtMs); tooltip.setState(state); },
     dispose() { tooltip.dispose(); viewer.dispose(); renderer.dispose(); },
   };

@@ -1,3 +1,4 @@
+import { createSceneAnimation } from './animation.js';
 import { createPlantTooltip } from './plant-tooltip.js';
 import { drawGardenGround, drawDecomposer } from './garden.js';
 import { drawPot } from './pots.js';
@@ -498,7 +499,6 @@ export function createLandRenderer(canvas) {
     let movedAt = 0;
     let hitAt = 0;
     let hits = [];
-    let frame = 0;
     let disposed = false;
     const currentPositions = (now) => {
         return new Map((state?.bugs ?? []).map(bug => {
@@ -511,9 +511,10 @@ export function createLandRenderer(canvas) {
         if (disposed || !state)
             return;
         drawScene(canvas, state, currentPositions(now), hits.map(hit => ({ ...hit, strength: Math.max(0, 1 - (now - hitAt) / 900) })));
-        frame = requestAnimationFrame(render);
     };
+    const animation = createSceneAnimation(canvas, render);
     return {
+        setActive(active) { animation.setActive(active); },
         setState(next) {
             if (disposed)
                 return;
@@ -534,10 +535,9 @@ export function createLandRenderer(canvas) {
                 movedAt = now;
             }
             state = next;
-            if (!frame)
-                frame = requestAnimationFrame(render);
+            animation.request();
         },
-        dispose() { disposed = true; cancelAnimationFrame(frame); },
+        dispose() { disposed = true; animation.dispose(); },
     };
 }
 export function createScene(canvas, language = 'zh') {
@@ -545,6 +545,7 @@ export function createScene(canvas, language = 'zh') {
     const viewer = createNestViewer(canvas, language);
     const tooltip = createPlantTooltip(canvas, language);
     return {
+        setActive(active) { renderer.setActive(active); },
         setState(state, recordedAtMs) { renderer.setState(state); viewer.setState(state, recordedAtMs); tooltip.setState(state); },
         dispose() { tooltip.dispose(); viewer.dispose(); renderer.dispose(); },
     };
